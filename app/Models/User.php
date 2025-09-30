@@ -68,19 +68,53 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * Check if the user is an admin
-     */
-    public function isAdmin(): bool
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function cart()
+    {
+        return $this->hasOne(Cart::class);
+    }
+
+    public function isAdmin()
     {
         return $this->user_type === 'admin';
     }
 
-    /**
-     * Check if the user is a customer
-     */
-    public function isCustomer(): bool
+    public function isCustomer()
     {
         return $this->user_type === 'customer';
+    }
+
+    public function scopeAdmins($query)
+    {
+        return $query->where('user_type', 'admin');
+    }
+
+    public function scopeCustomers($query)
+    {
+        return $query->where('user_type', 'customer');
+    }
+
+    public function getTotalOrdersAttribute()
+    {
+        return $this->orders()->count();
+    }
+
+    public function getTotalSpentAttribute()
+    {
+        return $this->orders()->where('status', 'delivered')->sum('total_amount');
+    }
+
+    public function getPendingOrdersCountAttribute()
+    {
+        return $this->orders()->where('status', 'pending')->count();
+    }
+
+    public function getFormattedTotalSpentAttribute()
+    {
+        return 'Rs. ' . number_format($this->total_spent, 2);
     }
 }

@@ -3,106 +3,134 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\CakeResource;
 use App\Models\Cake;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CakeController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Cake::with('category');
+        $query = Cake::with('category')->available();
 
-        // Apply filters
-        if ($request->has('category_id')) {
-            $query->where('category_id', $request->category_id);
+        if ($request->has('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
         }
 
         if ($request->has('flavor')) {
             $query->where('flavor', $request->flavor);
         }
 
-        if ($request->has('size')) {
-            $query->where('size', $request->size);
-        }
-
-        if ($request->has('occasion')) {
-            $query->where('occasion', $request->occasion);
-        }
-
-        if ($request->has('min_price')) {
-            $query->where('price', '>=', $request->min_price);
-        }
-
-        if ($request->has('max_price')) {
-            $query->where('price', '<=', $request->max_price);
-        }
-
-        if ($request->has('available')) {
-            $query->where('is_available', $request->boolean('available'));
-        }
-
-        if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('flavor', 'like', "%{$search}%");
-            });
+        if ($request->has('min_price') && $request->has('max_price')) {
+            $query->whereBetween('price', [$request->min_price, $request->max_price]);
         }
 
         $cakes = $query->paginate($request->get('per_page', 12));
-        return CakeResource::collection($cakes);
+
+        return response()->json($cakes);
+    }
+
+    public function show($id)
+    {
+        $cake = Cake::with('category')->findOrFail($id);
+        
+        return response()->json($cake);
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
-            'image' => 'nullable|string',
             'category_id' => 'required|exists:categories,id',
             'flavor' => 'nullable|string',
             'size' => 'nullable|string',
             'occasion' => 'nullable|string',
-            'is_available' => 'boolean',
             'ingredients' => 'nullable|string',
-            'dietary_options' => 'nullable|array',
+            'image' => 'nullable|image|max:2048',
         ]);
 
-        $cake = Cake::create($validated);
-        return new CakeResource($cake->load('category'));
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $data = $request->except('image');
+        
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('cakes', 'public');
+        }
+
+        $cake = Cake::create($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cake created successfully',
+            'data' => $cake
+        ], 201);
     }
 
-    public function show(Cake $cake)
+    public function update(Request $request, $id)
     {
-        return new CakeResource($cake->load('category'));
-    }
+        $cake = Cake::findOrFail($id);
 
-    public function update(Request $request, Cake $cake)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'image' => 'nullable|string',
-            'category_id' => 'required|exists:categories,id',
-            'flavor' => 'nullable|string',
-            'size' => 'nullable|string',
-            'occasion' => 'nullable|string',
-            'is_available' => 'boolean',
-            'ingredients' => 'nullable|string',
-            'dietary_options' => 'nullable|array',
+        $validator = Validator::make($request->all(), [
+            'name' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|required|string',
+            'price' => 'sometimes|required|numeric|min:0',
+            'category_id' => 'sometimes|required|exists:categories,id',
+            'image' => 'nullable|image|max:2048',
         ]);
 
-        $cake->update($validated);
-        return new CakeResource($cake->load('category'));
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $data = $request->except('image');
+        
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('cakes', 'public');
+        }
+
+        $cake->update($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cake updated successfully',
+            'data' => $cake
+        ]);
     }
 
-    public function destroy(Cake $cake)
+    public function destroy($id)
     {
+        $cake = Cake::findOrFail($id);
         $cake->delete();
-        return response()->json(['message' => 'Cake deleted successfully']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cake deleted successfully'
+        ]);
+    }
+
+    public function toggleAvailability($id)
+    {
+        $cake = Cake::findOrFail($id);
+        $cake->update(['is_available' => !$cake->is_available]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Availability updated',
+            'data' => $cake
+        ]);
     }
 }

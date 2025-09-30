@@ -20,4 +20,19 @@ class Category extends Model
     {
         return $this->hasMany(Cake::class);
     }
+
+    public function availableCakes()
+    {
+        return $this->hasMany(Cake::class)->where('is_available', true);
+    }
+
+    public function getActiveCakesCountAttribute()
+    {
+        return $this->cakes()->where('is_available', true)->count();
+    }
+
+    public function getImageUrlAttribute()
+    {
+        return $this->image ? asset('storage/' . $this->image) : asset('images/category-placeholder.jpg');
+    }
 }

@@ -18,6 +18,7 @@ class CartItem extends Model
     ];
 
     protected $casts = [
+        'quantity' => 'integer',
         'price' => 'decimal:2',
         'customization' => 'array',
     ];
@@ -31,5 +32,26 @@ class CartItem extends Model
     public function cake()
     {
         return $this->belongsTo(Cake::class);
+    }
+
+    public function getSubtotalAttribute()
+    {
+        return $this->quantity * $this->price;
+    }
+
+    public function getFormattedSubtotalAttribute()
+    {
+        return 'Rs. ' . number_format($this->subtotal, 2);
+    }
+
+    public function getCustomizationTextAttribute()
+    {
+        if (!$this->customization) return 'Standard';
+        
+        $text = [];
+        foreach ($this->customization as $key => $value) {
+            $text[] = ucfirst($key) . ': ' . $value;
+        }
+        return implode(', ', $text);
     }
 }

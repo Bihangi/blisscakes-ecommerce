@@ -1,62 +1,61 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\CategoryController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CakeController;
 use App\Http\Controllers\Api\OrderController;
-use App\Http\Controllers\Api\CartController;
-use App\Http\Controllers\Api\UserController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ReviewController;
 
-// Public routes
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-
-// Public cake and category routes (for browsing without auth)
-Route::get('/categories', [CategoryController::class, 'index']);
-Route::get('/categories/{category}', [CategoryController::class, 'show']);
+// Public API routes
 Route::get('/cakes', [CakeController::class, 'index']);
-Route::get('/cakes/{cake}', [CakeController::class, 'show']);
+Route::get('/cakes/{id}', [CakeController::class, 'show']);
+Route::get('/cakes/{cakeId}/reviews', [ReviewController::class, 'index']);
 
-// Protected routes
+// Protected API routes
 Route::middleware('auth:sanctum')->group(function () {
-    // Auth routes
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me', [AuthController::class, 'me']);
-    
-    // User profile routes
-    Route::get('/profile', [UserController::class, 'profile']);
-    Route::put('/profile', function(Request $request) {
-        return app(UserController::class)->update($request, $request->user());
+    Route::get('/user', function (Request $request) {
+        return $request->user();
     });
 
-    // Cart routes
-    Route::prefix('cart')->group(function () {
-        Route::get('/', [CartController::class, 'index']);
-        Route::post('/items', [CartController::class, 'addItem']);
-        Route::put('/items/{cartItem}', [CartController::class, 'updateItem']);
-        Route::delete('/items/{cartItem}', [CartController::class, 'removeItem']);
-        Route::delete('/clear', [CartController::class, 'clearCart']);
+    // Cake routes (Admin only for create/update/delete)
+    Route::middleware('admin')->group(function () {
+        Route::post('/cakes', [CakeController::class, 'store']);
+        Route::put('/cakes/{id}', [CakeController::class, 'update']);
+        Route::delete('/cakes/{id}', [CakeController::class, 'destroy']);
+        Route::post('/cakes/{id}/toggle-availability', [CakeController::class, 'toggleAvailability']);
+
+        // Admin: Get all reviews
+        Route::get('/admin/reviews', [ReviewController::class, 'getAllReviews']);
     });
 
     // Order routes
-    Route::apiResource('orders', OrderController::class);
-
-    // Admin only routes
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
+    Route::post('/orders', [OrderController::class, 'store']);
+    
+    // Admin only order routes
     Route::middleware('admin')->group(function () {
-        // Category management
-        Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);
-        
-        // Cake management
-        Route::apiResource('cakes', CakeController::class)->except(['index', 'show']);
-        
-        // User management
-        Route::apiResource('users', UserController::class);
-        
-        // Admin order management (all orders)
-        Route::get('/admin/orders', [OrderController::class, 'index']);
-        Route::put('/admin/orders/{order}/status', function(Request $request, Order $order) {
-            return app(OrderController::class)->update($request, $order);
+        Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
+    });
+
+    // Review routes (stored in JSON/NoSQL style field)
+    Route::post('/reviews', [ReviewController::class, 'store']);
+    Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
+
+    // Cart routes
+    Route::prefix('cart')->group(function () {
+        Route::post('/items', function (Request $request) {
+            $cake = \App\Models\Cake::findOrFail($request->cake_id);
+            $cart = auth()->user()->cart ?? auth()->user()->cart()->create();
+            
+            $cart->cartItems()->create([
+                'cake_id' => $request->cake_id,
+                'quantity' => $request->quantity,
+                'price' => $cake->price,
+                'customization' => $request->customization,
+            ]);
+            
+            return response()->json(['success' => true]);
         });
     });
 });

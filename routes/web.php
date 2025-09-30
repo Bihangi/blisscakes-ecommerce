@@ -1,33 +1,52 @@
 <?php
-// In routes/web.php
 
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\Auth\AdminLoginController;
 use Illuminate\Support\Facades\Route;
+use App\Livewire\CakeBrowser;
+use App\Livewire\CartManagement;
+use App\Livewire\CakeManagement;
+use App\Livewire\OrderManagement;
+use App\Livewire\UserDashboard;
+use App\Livewire\AdminDashboard;
+use App\Livewire\CategoryManagement;
+use App\Livewire\NotificationSystem;
 
-Route::get('/', function () {
+// Public routes
+Route::get('/welcome', function () {
     return view('welcome');
+})->name('welcome');
+
+Route::get('/cakes', CakeBrowser::class)->name('cakes.browse');
+
+// Customer routes (authenticated)
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+    Route::get('/dashboard', UserDashboard::class)->name('dashboard');
+
+    Route::get('/cart', CartManagement::class)->name('cart');
+
+    Route::get('/my-orders', function () {
+        return view('customer.orders');
+    })->name('customer.orders');
 });
 
-// Override the default dashboard route to add customer middleware
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
-});
+// Admin routes
+Route::middleware(['auth:sanctum', 'verified', 'admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/dashboard', AdminDashboard::class)->name('dashboard');
 
-// Admin Login Routes
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('login', [AdminLoginController::class, 'showLoginForm'])->name('login');
-    Route::post('login', [AdminLoginController::class, 'login']);
-    
-    // Protected Admin Routes
-    Route::middleware(['auth:sanctum', 'verified', 'admin.web'])->group(function () {
-        Route::get('dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-        Route::post('logout', [AdminLoginController::class, 'logout'])->name('logout');
+        Route::get('/cakes', CakeManagement::class)->name('cakes');
+        Route::get('/orders', OrderManagement::class)->name('orders');
+        Route::get('/categories', CategoryManagement::class)->name('categories');
+        Route::get('/notifications', NotificationSystem::class)->name('notifications');
     });
-});
+
+    // Admin Login
+    Route::get('/admin/login', [AdminLoginController::class, 'showLoginForm'])
+        ->name('admin.login');
+
+    Route::post('/admin/login', [AdminLoginController::class, 'login'])
+        ->name('admin.login.submit');
+
+        
+

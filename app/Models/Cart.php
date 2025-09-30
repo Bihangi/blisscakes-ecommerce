@@ -24,11 +24,25 @@ class Cart extends Model
         return $this->hasMany(CartItem::class);
     }
 
-    // Calculate total amount
-    public function getTotalAttribute()
+    public function getTotalAmountAttribute()
     {
-        return $this->cartItems->sum(function($item) {
+        return $this->cartItems->sum(function ($item) {
             return $item->quantity * $item->price;
         });
+    }
+
+    public function getTotalItemsAttribute()
+    {
+        return $this->cartItems->sum('quantity');
+    }
+
+    public function getFormattedTotalAttribute()
+    {
+        return 'Rs. ' . number_format($this->total_amount, 2);
+    }
+
+    public function isEmpty()
+    {
+        return $this->cartItems->isEmpty();
     }
 }

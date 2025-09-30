@@ -111,7 +111,7 @@
                             <div class="border-t border-gray-200"></div>
 
                             <!-- Authentication -->
-                            <form method="POST" action="@if(auth()->user()->isAdmin()) {{ route('admin.logout') }} @else {{ route('logout') }} @endif" x-data>
+                            <form method="POST" action="@if(auth()->user()->isAdmin()) {{ route('logout') }} @else {{ route('logout') }} @endif" x-data>
                                 @csrf
                                 <x-dropdown-link href="{{ route('logout') }}"
                                                 @click.prevent="$root.submit();">
@@ -171,7 +171,7 @@
                 @endif
 
                 <!-- Authentication -->
-                <form method="POST" action="@if(auth()->user()->isAdmin()) {{ route('admin.logout') }} @else {{ route('logout') }} @endif" x-data>
+                <form method="POST" action="@if(auth()->user()->isAdmin()) {{ route('logout') }} @else {{ route('logout') }} @endif" x-data>
                     @csrf
                     <x-dropdown-link href="{{ route('logout') }}"
                                     @click.prevent="$root.submit();">

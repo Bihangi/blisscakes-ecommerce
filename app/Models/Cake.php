@@ -44,4 +44,39 @@ class Cake extends Model
     {
         return $this->hasMany(CartItem::class);
     }
+
+    public function scopeAvailable($query)
+    {
+        return $query->where('is_available', true);
+    }
+
+    public function scopeByCategory($query, $categoryId)
+    {
+        return $query->where('category_id', $categoryId);
+    }
+
+    public function scopeByOccasion($query, $occasion)
+    {
+        return $query->where('occasion', $occasion);
+    }
+
+    public function scopeByFlavor($query, $flavor)
+    {
+        return $query->where('flavor', $flavor);
+    }
+
+    public function getImageUrlAttribute()
+    {
+        return $this->image ? asset('storage/' . $this->image) : asset('images/cake-placeholder.jpg');
+    }
+
+    public function getFormattedPriceAttribute()
+    {
+        return 'Rs. ' . number_format($this->price, 2);
+    }
+
+    public function getDietaryOptionsListAttribute()
+    {
+        return $this->dietary_options ? implode(', ', $this->dietary_options) : 'None';
+    }
 }
