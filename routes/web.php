@@ -4,9 +4,11 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\CakeBrowser;
 use App\Livewire\CartManagement;
 use App\Livewire\CakeManagement;
+use App\Livewire\Checkout;
 use App\Livewire\OrderManagement;
 use App\Livewire\UserDashboard;
 use App\Livewire\AdminDashboard;
+use App\Livewire\CakeReviews;
 use App\Livewire\CategoryManagement;
 use App\Livewire\NotificationSystem;
 use App\Livewire\UserManagement;
@@ -41,14 +43,16 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     })->name('home');
 
     Route::get('/cakes', CakeBrowser::class)->name('cakes.browse');
+    Route::get('/cakes/{cakeId}/reviews', CakeReviews::class)->name('cakes.reviews');
     Route::get('/cart', CartManagement::class)->name('cart');
     Route::get('/checkout', function () {
         return view('frontend.checkout');
     })->name('checkout');
-    Route::get('/dashboard', UserDashboard::class)->name('dashboard');
+    Route::get('/orders', UserDashboard::class)->name('orders');
     Route::get('/my-orders', function () {
         return view('customer.orders');
     })->name('customer.orders');
+    Route::get('/checkout', Checkout::class)->name('checkout')->middleware('auth');
 });
 
 /* ADMIN ROUTES */

@@ -20,7 +20,7 @@ class Cake extends Model
         'occasion',
         'is_available',
         'ingredients',
-        'dietary_options', // JSON field for gluten-free, vegan, etc.
+        'dietary_options', 
     ];
 
     protected $casts = [
@@ -79,4 +79,15 @@ class Cake extends Model
     {
         return $this->dietary_options ? implode(', ', $this->dietary_options) : 'None';
     }
+
+    public function getAverageRatingAttribute()
+    {
+        return \App\Models\Review::getAverageRating($this->id);
+    }
+
+    public function getTotalReviewsAttribute()
+    {
+        return \App\Models\Review::getTotalReviews($this->id);
+    }
+    
 }

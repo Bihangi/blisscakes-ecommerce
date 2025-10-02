@@ -16,6 +16,15 @@ class OrderManagement extends Component
     public $selectedOrder = null;
     public $showOrderDetails = false;
 
+    public $statuses = [
+        'pending',
+        'confirmed',
+        'preparing',
+        'ready',
+        'delivered',
+        'cancelled',
+    ];
+    
     public function render()
     {
         $orders = Order::with(['user', 'orderItems.cake'])

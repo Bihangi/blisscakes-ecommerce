@@ -13,9 +13,15 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             // Add new columns
-            $table->string('first_name')->after('id');
-            $table->string('last_name')->after('first_name');
-            $table->string('username')->unique()->after('last_name');
+            if (!Schema::hasColumn('users', 'first_name')) {
+                $table->string('first_name')->after('id');
+            }
+            if (!Schema::hasColumn('users', 'last_name')) {
+                $table->string('last_name')->after('first_name');
+            }
+            if (!Schema::hasColumn('users', 'username')) {
+                $table->string('username')->after('last_name');
+            }
 
             // Remove old "name" column
             if (Schema::hasColumn('users', 'name')) {

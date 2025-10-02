@@ -60,7 +60,7 @@
                 Wedding Cakes
               </a>
               <a href="{{ route('cakes.browse', ['categoryFilter' => 3]) }}" class="block px-5 py-3 text-gray-900 hover:bg-white/30 hover:text-white transition-colors text-lg font-semibold">
-                Custom Cakes
+                Anniversary Cakes
               </a>
             </div>
           </div>
@@ -96,7 +96,7 @@
                   <p class="text-base font-bold text-gray-900 truncate">{{ auth()->user()->username }}</p>
                   <p class="text-sm text-gray-600 truncate">{{ auth()->user()->email }}</p>
                 </div>
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-5 py-3 text-gray-700 hover:bg-pink-50 transition-colors text-base font-medium">
+                <a href="{{ route('orders') }}" class="flex items-center gap-3 px-5 py-3 text-gray-700 hover:bg-pink-50 transition-colors text-base font-medium">
                   <i class="fas fa-box text-lg w-5"></i>My Orders
                 </a>
                 @if(auth()->user()->isAdmin())

@@ -72,7 +72,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
 
     // Review Management (Admin can view/delete all reviews)
-    Route::get('/reviews', [ReviewController::class, 'getAllReviews']);
+    Route::get('/admin/reviews', [ReviewController::class, 'getAllReviews']);
     Route::delete('/reviews/{id}/admin', [ReviewController::class, 'adminDestroy']);
 
     // Customer Management

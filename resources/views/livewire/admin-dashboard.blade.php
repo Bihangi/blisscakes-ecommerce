@@ -1,140 +1,221 @@
-<div>
-    @if (session()->has('message'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-            {{ session('message') }}
-        </div>
-    @endif
-
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="flex items-center justify-center h-8 w-8 rounded-md bg-indigo-500 text-white">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                        </svg>
-                    </div>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-16 xl:px-24 py-10">
+        
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Admin Dashboard</h1>
+                    <p class="text-slate-600 flex items-center gap-2">
+                        <i class="fas fa-user-shield text-blue-600"></i>
+                        Welcome back, <span class="font-semibold">{{ auth()->user()->name }}</span>
+                    </p>
                 </div>
-                <div class="ml-5 w-0 flex-1">
-                    <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Total Orders</dt>
-                        <dd class="text-lg font-medium text-gray-900">{{ $stats['total_orders'] }}</dd>
-                    </dl>
+                <div class="hidden md:block text-right">
+                    <p class="text-sm text-slate-500">Last login</p>
+                    <p class="text-sm font-semibold text-slate-700">{{ now()->format('M d, Y - h:i A') }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="flex items-center justify-center h-8 w-8 rounded-md bg-yellow-500 text-white">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
+        <!-- Success Message -->
+        @if (session()->has('message'))
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-4 rounded-xl mb-6 shadow-sm">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-check text-white"></i>
                     </div>
+                    <span class="text-green-800 font-medium">{{ session('message') }}</span>
                 </div>
-                <div class="ml-5 w-0 flex-1">
-                    <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Pending Orders</dt>
-                        <dd class="text-lg font-medium text-gray-900">{{ $stats['pending_orders'] }}</dd>
-                    </dl>
+            </div>
+        @endif
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Orders -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-blue-100 hover:shadow-xl hover:scale-105 transition-all duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-shopping-bag text-2xl text-white"></i>
+                    </div>
+                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">All Time</span>
                 </div>
+                <p class="text-sm font-semibold text-slate-600 mb-1">Total Orders</p>
+                <p class="text-4xl font-bold text-slate-900">{{ $stats['total_orders'] }}</p>
+            </div>
+
+            <!-- Pending Orders -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-amber-100 hover:shadow-xl hover:scale-105 transition-all duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-clock text-2xl text-white"></i>
+                    </div>
+                    <span class="text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full">Active</span>
+                </div>
+                <p class="text-sm font-semibold text-slate-600 mb-1">Pending Orders</p>
+                <p class="text-4xl font-bold text-slate-900">{{ $stats['pending_orders'] }}</p>
+            </div>
+
+            <!-- Total Customers -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-emerald-100 hover:shadow-xl hover:scale-105 transition-all duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-users text-2xl text-white"></i>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">Users</span>
+                </div>
+                <p class="text-sm font-semibold text-slate-600 mb-1">Total Customers</p>
+                <p class="text-4xl font-bold text-slate-900">{{ $stats['total_customers'] }}</p>
+            </div>
+
+            <!-- Total Revenue -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-rose-100 hover:shadow-xl hover:scale-105 transition-all duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-rose-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-coins text-2xl text-white"></i>
+                    </div>
+                    <span class="text-xs font-bold text-rose-600 bg-rose-50 px-3 py-1 rounded-full">Total</span>
+                </div>
+                <p class="text-sm font-semibold text-slate-600 mb-1">Total Revenue</p>
+                <p class="text-4xl font-bold text-slate-900">Rs. {{ number_format($stats['total_revenue'], 0) }}</p>
             </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="flex items-center justify-center h-8 w-8 rounded-md bg-green-500 text-white">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                        </svg>
+        <!-- Quick Actions -->
+        <div class="mb-8">
+            <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <i class="fas fa-bolt text-amber-500"></i>
+                Quick Actions
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <a href="{{ route('admin.orders') }}" class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all transform hover:-translate-y-1 border-2 border-transparent hover:border-blue-200 group">
+                    <div class="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl mx-auto mb-3 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-clipboard-list text-2xl text-blue-600"></i>
                     </div>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                    <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Total Customers</dt>
-                        <dd class="text-lg font-medium text-gray-900">{{ $stats['total_customers'] }}</dd>
-                    </dl>
-                </div>
+                    <p class="font-bold text-slate-900 text-sm text-center">Manage Orders</p>
+                    <p class="text-xs text-slate-500 text-center mt-1">View & process</p>
+                </a>
+
+                <a href="{{ route('admin.cakes') }}" class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all transform hover:-translate-y-1 border-2 border-transparent hover:border-rose-200 group">
+                    <div class="w-14 h-14 bg-gradient-to-br from-rose-100 to-pink-200 rounded-xl mx-auto mb-3 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-birthday-cake text-2xl text-rose-600"></i>
+                    </div>
+                    <p class="font-bold text-slate-900 text-sm text-center">Manage Cakes</p>
+                    <p class="text-xs text-slate-500 text-center mt-1">Add & edit</p>
+                </a>
+
+                <a href="{{ route('admin.categories') }}" class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all transform hover:-translate-y-1 border-2 border-transparent hover:border-purple-200 group">
+                    <div class="w-14 h-14 bg-gradient-to-br from-purple-100 to-violet-200 rounded-xl mx-auto mb-3 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-tags text-2xl text-purple-600"></i>
+                    </div>
+                    <p class="font-bold text-slate-900 text-sm text-center">Categories</p>
+                    <p class="text-xs text-slate-500 text-center mt-1">Organize</p>
+                </a>
+
+                <a href="{{ route('admin.users') }}" class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all transform hover:-translate-y-1 border-2 border-transparent hover:border-emerald-200 group">
+                    <div class="w-14 h-14 bg-gradient-to-br from-emerald-100 to-teal-200 rounded-xl mx-auto mb-3 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-users-cog text-2xl text-emerald-600"></i>
+                    </div>
+                    <p class="font-bold text-slate-900 text-sm text-center">Manage Users</p>
+                    <p class="text-xs text-slate-500 text-center mt-1">View & manage</p>
+                </a>
             </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="flex items-center justify-center h-8 w-8 rounded-md bg-pink-500 text-white">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0A2.704 2.704 0 003 15.546V6.454c.523 0 1.046-.151 1.5-.454a2.704 2.704 0 013 0 2.704 2.704 0 003 0 2.704 2.704 0 013 0 2.704 2.704 0 003 0 2.704 2.704 0 013 0c.454.303.977.454 1.5.454v9.092z"></path>
-                        </svg>
+        <!-- Recent Orders -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-slate-100">
+            <div class="bg-gradient-to-r from-slate-50 to-gray-50 px-6 py-5 border-b-2 border-slate-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fas fa-list-alt text-blue-600"></i>
+                            Recent Orders
+                        </h3>
+                        <p class="text-sm text-slate-600 mt-1">Latest customer orders requiring attention</p>
                     </div>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                    <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
-                        <dd class="text-lg font-medium text-gray-900">Rs. {{ number_format($stats['total_revenue'], 2) }}</dd>
-                    </dl>
+                    <a href="{{ route('admin.orders') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                        View All
+                        <i class="fas fa-arrow-right text-xs"></i>
+                    </a>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Recent Orders -->
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-        <div class="px-4 py-5 sm:px-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Orders</h3>
-            <p class="mt-1 max-w-2xl text-sm text-gray-500">Latest orders from customers</p>
-        </div>
-        <div class="border-t border-gray-200">
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                <table class="min-w-full divide-y-2 divide-slate-200">
+                    <thead class="bg-slate-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Order ID</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Customer</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Amount</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="bg-white divide-y divide-slate-100">
                         @forelse($recentOrders as $order)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ $order->id }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->user->name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rs. {{ number_format($order->total_amount, 2) }}</td>
+                            <tr class="hover:bg-slate-50 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                        @if($order->status === 'pending') bg-yellow-100 text-yellow-800
-                                        @elseif($order->status === 'confirmed') bg-blue-100 text-blue-800
-                                        @elseif($order->status === 'preparing') bg-orange-100 text-orange-800
-                                        @elseif($order->status === 'ready') bg-purple-100 text-purple-800
-                                        @elseif($order->status === 'delivered') bg-green-100 text-green-800
-                                        @else bg-red-100 text-red-800
+                                    <span class="text-sm font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">#{{ $order->id }}</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div>
+                                            <span class="text-sm font-semibold text-slate-900 block">{{ $order->user->name }}</span>
+                                            <span class="text-xs text-slate-500">{{ $order->user->email }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="text-base font-bold text-slate-900">Rs. {{ number_format($order->total_amount, 2) }}</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-3 py-1.5 inline-flex text-xs leading-5 font-bold rounded-full shadow-sm
+                                        @if($order->status === 'pending') bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200
+                                        @elseif($order->status === 'confirmed') bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200
+                                        @elseif($order->status === 'preparing') bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 border border-orange-200
+                                        @elseif($order->status === 'ready') bg-gradient-to-r from-purple-100 to-violet-100 text-purple-800 border border-purple-200
+                                        @elseif($order->status === 'delivered') bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200
+                                        @else bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border border-red-200
                                         @endif">
+                                        <i class="fas fa-circle text-xs mr-1"></i>
                                         {{ ucfirst($order->status) }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->created_at->format('M d, Y') }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div>
+                                        <p class="text-sm font-semibold text-slate-900">{{ $order->created_at->format('M d, Y') }}</p>
+                                        <p class="text-xs text-slate-500">{{ $order->created_at->format('h:i A') }}</p>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
                                     @if($order->status !== 'delivered' && $order->status !== 'cancelled')
                                         <select wire:change="updateOrderStatus({{ $order->id }}, $event.target.value)" 
-                                                class="border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                            <option value="">Change Status</option>
-                                            <option value="confirmed" @if($order->status === 'confirmed') disabled @endif>Confirm</option>
-                                            <option value="preparing" @if($order->status === 'preparing') disabled @endif>Preparing</option>
-                                            <option value="ready" @if($order->status === 'ready') disabled @endif>Ready</option>
-                                            <option value="delivered" @if($order->status === 'delivered') disabled @endif>Delivered</option>
-                                            <option value="cancelled">Cancel</option>
+                                                class="border-2 border-slate-200 rounded-lg shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm font-semibold bg-white hover:bg-slate-50 transition">
+                                            <option value="">Update Status</option>
+                                            <option value="confirmed" @if($order->status === 'confirmed') disabled @endif>✓ Confirm</option>
+                                            <option value="preparing" @if($order->status === 'preparing') disabled @endif>👨‍🍳 Preparing</option>
+                                            <option value="ready" @if($order->status === 'ready') disabled @endif>✓ Ready</option>
+                                            <option value="delivered">🚚 Delivered</option>
+                                            <option value="cancelled">✗ Cancel</option>
                                         </select>
+                                    @else
+                                        <span class="text-slate-400 text-xs font-medium bg-slate-50 px-3 py-1.5 rounded-full">
+                                            <i class="fas fa-check-circle mr-1"></i>
+                                            Completed
+                                        </span>
                                     @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No orders found</td>
+                                <td colspan="6" class="px-6 py-16 text-center">
+                                    <div class="text-slate-400">
+                                        <i class="fas fa-inbox text-6xl mb-4"></i>
+                                        <p class="text-base font-semibold">No orders found</p>
+                                        <p class="text-sm mt-1">Orders will appear here once customers place them</p>
+                                    </div>
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>

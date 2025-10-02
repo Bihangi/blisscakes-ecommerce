@@ -11,7 +11,7 @@
           <li><a href="{{ route('cakes.browse') }}" class="hover:underline hover:text-white transition">Cakes</a></li>
           @auth
             <li><a href="{{ route('cart') }}" class="hover:underline hover:text-white transition">Cart</a></li>
-            <li><a href="{{ route('dashboard') }}" class="hover:underline hover:text-white transition">My Account</a></li>
+            <li><a href="{{ route('orders') }}" class="hover:underline hover:text-white transition">My Account</a></li>
           @endauth
         </ul>
       </div>

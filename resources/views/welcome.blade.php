@@ -44,7 +44,7 @@
                     <div class="flex items-center space-x-3 sm:space-x-4">
                         @if (Route::has('login'))
                             @auth
-                                <a href="{{ url('/dashboard') }}" 
+                                <a href="{{ url('/home') }}" 
                                    class="inline-flex items-center justify-center bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold px-6 sm:px-8 py-2.5 sm:py-3 rounded-full shadow-lg hover:shadow-xl hover:from-red-600 hover:to-red-700 transform hover:-translate-y-0.5 transition-all duration-200 text-sm sm:text-base">
                                     Dashboard
                                 </a>
@@ -117,7 +117,7 @@
                         <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
                             @if (Route::has('login'))
                                 @auth
-                                    <a href="{{ url('/dashboard') }}" 
+                                    <a href="{{ url('/home') }}" 
                                        class="group inline-flex items-center justify-center bg-gradient-to-r from-red-500 to-red-600 text-white font-bold px-10 py-4 rounded-full shadow-xl hover:shadow-2xl hover:from-red-600 hover:to-red-700 transform hover:-translate-y-1 transition-all duration-300 text-base sm:text-lg">
                                         <span>Go to Dashboard</span>
                                         <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -94,6 +94,31 @@ class CakeSeeder extends Seeder
                 'ingredients' => 'Flour, Cocoa, Cherries, Cream, Eggs',
                 'dietary_options' => null,
             ],
+            [
+                'name' => 'Mini Chocolate Bento Cake',
+                'description' => 'A cute single-serve chocolate bento cake with rich ganache and sprinkles',
+                'price' => 1800.00,
+                'category_id' => 1, 
+                'flavor' => 'Chocolate',
+                'size' => 'Small',
+                'occasion' => 'Birthday',
+                'is_available' => true,
+                'ingredients' => 'Flour, Cocoa Powder, Sugar, Butter, Eggs, Cream',
+                'dietary_options' => null,
+            ],
+            [
+                'name' => 'Classic Bettenberg Loaf',
+                'description' => 'A traditional almond sponge loaf with pink and yellow checker pattern wrapped in apricot jam and marzipan.',
+                'price' => 3200.00,
+                'category_id' => 6, 
+                'flavor' => 'Almond',
+                'size' => 'Medium',
+                'occasion' => 'Any',
+                'is_available' => true,
+                'ingredients' => 'Flour, Sugar, Eggs, Butter, Almond Extract, Apricot Jam, Marzipan, Food Coloring',
+                'dietary_options' => 'Vegetarian',
+            ],
+
         ];
 
         foreach ($cakes as $cake) {

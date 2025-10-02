@@ -41,4 +41,9 @@ class Review extends Model
     {
         return self::where('cake_id', (int)$cakeId)->count();
     }
+
+    public function getRatingStarsAttribute()
+    {
+        return str_repeat('⭐', $this->rating);
+    }
 }

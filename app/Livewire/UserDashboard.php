@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Order;
 use App\Models\Cake;
 use Illuminate\Support\Facades\Http;
+use Carbon\Carbon;
 
 class UserDashboard extends Component
 {
@@ -136,23 +137,52 @@ class UserDashboard extends Component
         $this->resetForm();
     }
 
+    /**
+     * Check if order can be cancelled (must be 24 hours before delivery date)
+     */
+    public function canCancelOrder($order)
+    {
+        if ($order->status !== 'pending') {
+            return false;
+        }
+
+        $deliveryDate = Carbon::parse($order->delivery_date);
+        $now = Carbon::now();
+        $hoursDifference = $now->diffInHours($deliveryDate, false);
+
+        // Can cancel if delivery is more than 24 hours away
+        return $hoursDifference >= 24;
+    }
+
     public function deleteOrder($orderId)
     {
         $order = $this->orders->find($orderId);
-        if ($order && $order->status === 'pending') {
-            try {
-                $response = Http::withToken(auth()->user()->createToken('temp')->plainTextToken)
-                    ->delete(config('app.url') . "/api/orders/{$orderId}");
+        
+        if (!$order) {
+            session()->flash('error', 'Order not found.');
+            return;
+        }
 
-                if ($response->successful()) {
-                    session()->flash('message', 'Order cancelled successfully!');
-                    $this->loadOrders();
-                } else {
-                    session()->flash('error', 'Failed to cancel order.');
-                }
-            } catch (\Exception $e) {
-                session()->flash('error', 'An error occurred while cancelling the order.');
-            }
+        if ($order->status !== 'pending') {
+            session()->flash('error', 'Only pending orders can be cancelled.');
+            return;
+        }
+
+        // Check if order can be cancelled (24 hours before delivery)
+        if (!$this->canCancelOrder($order)) {
+            $deliveryDate = Carbon::parse($order->delivery_date);
+            session()->flash('error', 'Orders can only be cancelled at least 24 hours before the delivery date. Your delivery is scheduled for ' . $deliveryDate->format('M d, Y') . '.');
+            return;
+        }
+
+        try {
+            // Update order status to cancelled instead of deleting
+            $order->update(['status' => 'cancelled']);
+            
+            session()->flash('message', 'Order cancelled successfully!');
+            $this->loadOrders();
+        } catch (\Exception $e) {
+            session()->flash('error', 'An error occurred while cancelling the order.');
         }
     }
 
@@ -168,6 +198,6 @@ class UserDashboard extends Component
 
     public function render()
     {
-        return view('livewire.user-dashboard') ->layout('layouts.app');
+        return view('livewire.user-dashboard')->layout('layouts.frontend');
     }
 }

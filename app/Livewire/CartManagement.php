@@ -37,7 +37,7 @@ class CartManagement extends Component
         $total = $cartItems->sum('subtotal');
 
         return view('livewire.cart', compact('cartItems', 'total'))
-        -> layout('layouts.app');
+          ->layout('layouts.frontend');
     }
 
     public function updateQuantity($cartItemId, $quantity)

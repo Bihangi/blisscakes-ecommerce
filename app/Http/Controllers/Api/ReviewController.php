@@ -84,4 +84,29 @@ class ReviewController extends Controller
             'message' => 'Review deleted successfully'
         ]);
     }
+
+    public function getAllReviews(Request $request)
+    {
+        $query = Review::query()->orderBy('created_at', 'desc');
+
+        if ($request->has('cake_id')) {
+            $query->where('cake_id', (int)$request->cake_id);
+        }
+
+        $reviews = $query->paginate($request->get('per_page', 15));
+
+        return response()->json($reviews);
+    }
+
+    public function adminDestroy($id, Request $request)
+    {
+        $review = Review::findOrFail($id);
+        $review->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Review deleted successfully'
+        ]);
+    }
+    
 }

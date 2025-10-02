@@ -19,7 +19,7 @@
                                     value="{{ $category->id }}" 
                                     class="accent-rose-500 w-5 h-5 rounded focus:ring-2 focus:ring-rose-400"
                                 >
-                                <span class="text-sm font-medium text-gray-700 group-hover:text-rose-600 transition">
+                                <span class="text-m font-medium text-gray-700 group-hover:text-rose-600 transition">
                                     {{ $category->name }}
                                 </span>
                             </label>
@@ -90,12 +90,12 @@
                                 {{ $cake->name }}
                             </h3>
                             
-                            <p class="text-sm text-gray-500 mb-1">
+                            <p class="text-m text-gray-500 mb-1">
                                 {{ $cake->size ?? 'Standard Size' }}
                             </p>
                             
                             @if($cake->category)
-                                <span class="inline-block bg-rose-100 text-rose-700 text-xs font-semibold px-3 py-1 rounded-full mb-3">
+                                <span class="inline-block bg-rose-100 text-rose-700 text-s font-semibold px-3 py-1 rounded-full mb-3">
                                     {{ $cake->category->name }}
                                 </span>
                             @endif
@@ -135,7 +135,7 @@
     <!-- Cake Details Modal -->
     @if($showCakeDetails && $selectedCake)
         <div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4" wire:click="hideCakeDetails">
-            <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" wire:click.stop>
+            <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" @click.stop>
                 <!-- Modal Header -->
                 <div class="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center z-10">
                     <h2 class="text-2xl md:text-3xl font-bold text-stone-800">{{ $selectedCake->name }}</h2>
@@ -176,6 +176,43 @@
                         {{ $selectedCake->description ?? 'A delicious handcrafted cake made with premium ingredients.' }}
                     </p>
 
+                    <!-- Rating Display -->
+                    @php
+                        $avgRating = \App\Models\Review::getAverageRating($selectedCake->id);
+                        $totalReviews = \App\Models\Review::getTotalReviews($selectedCake->id);
+                    @endphp
+                    
+                    @if($totalReviews > 0)
+                        <div class="mb-6">
+                            <div class="flex items-center justify-between bg-gradient-to-r from-rose-50 to-pink-50 p-4 rounded-xl">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex gap-1">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <i class="fas fa-star text-lg {{ $i <= round($avgRating) ? 'text-yellow-400' : 'text-gray-300' }}"></i>
+                                        @endfor
+                                    </div>
+                                    <span class="font-semibold text-gray-700">
+                                        {{ number_format($avgRating, 1) }} ({{ $totalReviews }} {{ Str::plural('review', $totalReviews) }})
+                                    </span>
+                                </div>
+                                <a href="{{ route('cakes.reviews', $selectedCake->id) }}" 
+                                   class="text-rose-600 hover:text-rose-700 font-semibold text-sm">
+                                    View All <i class="fas fa-arrow-right ml-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    @else
+                        <div class="mb-6">
+                            <div class="bg-gray-50 p-4 rounded-xl text-center">
+                                <p class="text-gray-500 text-sm mb-2">No reviews yet</p>
+                                <a href="{{ route('cakes.reviews', $selectedCake->id) }}" 
+                                   class="text-rose-600 hover:text-rose-700 font-semibold text-sm">
+                                    Be the first to review <i class="fas fa-arrow-right ml-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+
                     <!-- Price -->
                     <div class="bg-gradient-to-r from-rose-50 to-pink-50 p-6 rounded-xl mb-6">
                         <p class="text-sm text-gray-600 mb-1">Price</p>
@@ -210,10 +247,17 @@
                     <!-- Add to Cart Button -->
                     <button 
                         wire:click="addToCart({{ $selectedCake->id }})" 
-                        class="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 text-lg">
+                        class="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 text-lg mb-3">
                         <i class="fas fa-shopping-cart mr-2"></i>
                         Add to Cart
                     </button>
+
+                    <!-- View Full Reviews Button -->
+                    <a href="{{ route('cakes.reviews', $selectedCake->id) }}" 
+                       class="block w-full text-center bg-white border-2 border-rose-500 text-rose-600 hover:bg-rose-50 font-bold px-8 py-4 rounded-full transition-all transform hover:scale-105 text-lg">
+                        <i class="fas fa-star mr-2"></i>
+                        Read Reviews & Rate Product
+                    </a>
                 </div>
             </div>
         </div>
