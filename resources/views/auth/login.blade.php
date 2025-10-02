@@ -12,7 +12,7 @@
                 </a>
 
                 <!-- Title -->
-                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 sm:mb-8 mt-2">LOGIN</h1>
+                <h1 class="text-3xl sm:text-4xl lg:text-4xl font-bold mb-6 sm:mb-8 mt-2">LOGIN</h1>
 
                 <!-- Display Error Messages -->
                 <x-validation-errors class="mb-4" />
@@ -40,16 +40,16 @@
                 <form method="POST" action="{{ route('login') }}" class="space-y-5 sm:space-y-6">
                     @csrf
 
-                    <!-- Username Field -->
+                    <!-- Email Field -->
                     <div class="text-left">
-                        <label class="block font-semibold text-gray-800 text-sm sm:text-base mb-2">Username</label>
+                        <label class="block font-semibold text-gray-800 text-sm sm:text-base mb-2">Email</label>
                         <input 
-                            type="text" 
+                            type="email" 
                             name="email" 
                             required 
-                            placeholder="Enter your username"
+                            placeholder="Enter your email"
                             autofocus 
-                            autocomplete="username"
+                            autocomplete="email"
                             value="{{ old('email') }}"
                             class="w-full px-4 py-3 sm:py-3.5 text-sm sm:text-base bg-purple-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 transition-all"
                         />
@@ -68,8 +68,8 @@
                         />
                     </div>
 
-                    <!-- Remember Me (Optional) -->
-                    <div class="text-left hidden">
+                    <!-- Remember Me -->
+                    <div class="text-left">
                         <label class="flex items-center cursor-pointer">
                             <input 
                                 id="remember_me" 
@@ -107,6 +107,17 @@
                         </a>
                     </div>
                 @endif
+
+                <!-- Admin Login Link Alternative (Bottom) - Updated styling -->
+                <div class="mt-6 pt-6 border-t border-gray-300">
+                    <p class="text-xs sm:text-sm text-gray-600">
+                        Are you an administrator?
+                        <a href="{{ route('admin.login') }}" 
+                           class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-red-500 font-bold underline hover:from-pink-600 hover:to-red-600 transition-all ml-1">
+                            Login as Admin
+                        </a>
+                    </p>
+                </div>
             </div>
         </div>
     </div>

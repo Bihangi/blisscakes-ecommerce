@@ -61,12 +61,12 @@
     </div>
 
     {{-- Modal for Create/Edit --}}
-    @if($showModal)
+    @if($showCreateForm || $showEditForm)
         <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div class="bg-white rounded-lg p-8 max-w-2xl w-full max-h-screen overflow-y-auto">
-                <h2 class="text-2xl font-bold mb-4">{{ $isEditing ? 'Edit Cake' : 'Add New Cake' }}</h2>
+                <h2 class="text-2xl font-bold mb-4">{{ $showEditForm ? 'Edit Cake' : 'Add New Cake' }}</h2>
                 
-                <form wire:submit.prevent="saveCake">
+                <form wire:submit.prevent="{{ $showEditForm ? 'updateCake' : 'createCake' }}">
                     <div class="grid grid-cols-2 gap-4">
                         <div class="col-span-2">
                             <label class="block mb-2">Name *</label>
@@ -142,7 +142,7 @@
                             Cancel
                         </button>
                         <button type="submit" class="px-6 py-2 bg-pink-500 text-white rounded hover:bg-pink-600">
-                            {{ $isEditing ? 'Update' : 'Create' }}
+                            {{ $showEditForm ? 'Update' : 'Create' }}
                         </button>
                     </div>
                 </form>

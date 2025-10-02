@@ -26,7 +26,9 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
+        'username',
         'email',
         'password',
         'user_type',
@@ -78,14 +80,14 @@ class User extends Authenticatable
         return $this->hasOne(Cart::class);
     }
 
-    public function isAdmin()
+    public function isAdmin(): bool
     {
         return $this->user_type === 'admin';
     }
 
-    public function isCustomer()
+    public function isCustomer(): bool
     {
-        return $this->user_type === 'customer';
+        return $this->user_type === 'customer'|| is_null($this->user_type);
     }
 
     public function scopeAdmins($query)

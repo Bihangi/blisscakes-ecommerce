@@ -11,20 +11,21 @@ use Illuminate\Support\Facades\Validator;
 class ReviewController extends Controller
 {
     public function index($cakeId)
-    {
-        $reviews = Review::where('cake_id', $cakeId)
-            ->orderBy('created_at', 'desc')
-            ->get();
+{
+    \Log::info('Review API called', ['cake_id' => $cakeId, 'type' => gettype($cakeId)]);
+    
+    $reviews = Review::where('cake_id', (int)$cakeId)
+        ->orderBy('created_at', 'desc')
+        ->get();
 
-        $averageRating = Review::getAverageRating($cakeId);
-        $totalReviews = Review::getTotalReviews($cakeId);
+    \Log::info('Reviews found', ['count' => $reviews->count()]);
 
-        return response()->json([
-            'reviews' => $reviews,
-            'average_rating' => $averageRating,
-            'total_reviews' => $totalReviews,
-        ]);
-    }
+    return response()->json([
+        'reviews' => $reviews,
+        'average_rating' => Review::getAverageRating($cakeId),
+        'total_reviews' => Review::getTotalReviews($cakeId),
+    ]);
+}
 
     public function store(Request $request)
     {
@@ -43,7 +44,7 @@ class ReviewController extends Controller
 
         // Check if user has purchased this cake
         $hasPurchased = Order::where('user_id', $request->user()->id)
-            ->whereHas('items', function($query) use ($request) {
+            ->whereHas('orderItems', function($query) use ($request) {
                 $query->where('cake_id', $request->cake_id);
             })
             ->where('status', 'delivered')

@@ -26,11 +26,6 @@ class CategorySeeder extends Seeder
                 'image' => null,
             ],
             [
-                'name' => 'Custom Cakes',
-                'description' => 'Fully customizable cakes for any occasion',
-                'image' => null,
-            ],
-            [
                 'name' => 'Cupcakes',
                 'description' => 'Delicious cupcakes in various flavors',
                 'image' => null,

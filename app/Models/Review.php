@@ -25,16 +25,20 @@ class Review extends Model
         'updated_at' => 'datetime',
     ];
 
-    // Helper to get average rating for a cake
     public static function getAverageRating($cakeId)
     {
-        $avg = self::where('cake_id', $cakeId)->avg('rating');
-        return round($avg, 1);
+        $reviews = self::where('cake_id', (int)$cakeId)->get();
+        
+        if ($reviews->isEmpty()) {
+            return 0;
+        }
+        
+        $total = $reviews->sum('rating');
+        return round($total / $reviews->count(), 1);
     }
 
-    // Helper to get total reviews for a cake
     public static function getTotalReviews($cakeId)
     {
-        return self::where('cake_id', $cakeId)->count();
+        return self::where('cake_id', (int)$cakeId)->count();
     }
 }

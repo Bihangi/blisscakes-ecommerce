@@ -4,17 +4,60 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\Cart;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
+    public function store(Request $request)
+    {
+        $user = $request->user();
+
+        // Get cart with cart items
+        $cart = $user->cart()->with('cartItems.cake')->first();
+
+        if (!$cart || $cart->isEmpty()) {
+            return response()->json([
+                'message' => 'Your cart is empty.'
+            ], 400);
+        }
+
+        $validated = $request->validate([
+            'delivery_address' => 'required|string|max:255',
+            'delivery_phone' => 'required|string|max:20',
+            'special_instructions' => 'nullable|string|max:500',
+        ]);
+
+        // Create order
+        $order = $user->orders()->create([
+            'delivery_address' => $validated['delivery_address'],
+            'delivery_phone' => $validated['delivery_phone'],
+            'special_instructions' => $validated['special_instructions'] ?? null,
+            'total_amount' => $cart->total_amount,
+        ]);
+
+        // Attach cart items to order
+        foreach ($cart->cartItems as $item) {
+            $order->orderItems()->create([
+                'cake_id' => $item->cake_id,
+                'quantity' => $item->quantity,
+                'price' => $item->price,
+                'customization' => $item->customization,
+            ]);
+        }
+
+        // Clear cart
+        $cart->cartItems()->delete();
+
+        return response()->json([
+            'message' => 'Order created successfully',
+            'order_id' => $order->id
+        ]);
+    }
+
     public function index(Request $request)
     {
-        $query = Order::with(['user', 'items.cake']);
+        $query = Order::with(['user', 'orderItems.cake']); // use orderItems
 
         if ($request->user()->user_type === 'customer') {
             $query->where('user_id', $request->user()->id);
@@ -31,7 +74,7 @@ class OrderController extends Controller
 
     public function show($id, Request $request)
     {
-        $query = Order::with(['user', 'items.cake']);
+        $query = Order::with(['user', 'orderItems.cake']);
 
         if ($request->user()->user_type === 'customer') {
             $query->where('user_id', $request->user()->id);
@@ -40,73 +83,6 @@ class OrderController extends Controller
         $order = $query->findOrFail($id);
 
         return response()->json($order);
-    }
-
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'delivery_address' => 'required|string',
-            'delivery_phone' => 'required|string',
-            'delivery_date' => 'nullable|date',
-            'special_instructions' => 'nullable|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $cart = Cart::where('user_id', $request->user()->id)
-            ->with('items.cake')
-            ->firstOrFail();
-
-        if ($cart->items->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cart is empty'
-            ], 422);
-        }
-
-        DB::beginTransaction();
-        try {
-            $order = Order::create([
-                'user_id' => $request->user()->id,
-                'total_amount' => $cart->total,
-                'delivery_address' => $request->delivery_address,
-                'delivery_phone' => $request->delivery_phone,
-                'delivery_date' => $request->delivery_date,
-                'special_instructions' => $request->special_instructions,
-            ]);
-
-            foreach ($cart->items as $item) {
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'cake_id' => $item->cake_id,
-                    'quantity' => $item->quantity,
-                    'price' => $item->price,
-                    'customization' => $item->customization,
-                ]);
-            }
-
-            $cart->clearCart();
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Order placed successfully',
-                'data' => $order->load('items.cake')
-            ], 201);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to place order'
-            ], 500);
-        }
     }
 
     public function updateStatus(Request $request, $id)

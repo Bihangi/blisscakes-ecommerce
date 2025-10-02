@@ -11,6 +11,15 @@ class AdminLoginController extends Controller
 {
     public function showLoginForm()
     {
+        // Redirect if already logged in
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->user_type === 'admin') {
+                return redirect()->route('admin.dashboard');
+            }
+            return redirect()->route('home');
+        }
+        
         return view('auth.admin-login');
     }
 
@@ -24,14 +33,16 @@ class AdminLoginController extends Controller
         if (Auth::attempt($request->only('email', 'password'), $request->filled('remember'))) {
             $user = Auth::user();
             
-            if ($user->isAdmin()) {
+            // Only allow admin login
+            if ($user->user_type === 'admin') {
                 $request->session()->regenerate();
-                return redirect()->intended(route('admin.dashboard'));
+                return redirect()->intended(route('admin.dashboard'))->with('success', 'Welcome back, Admin!');
             } else {
                 Auth::logout();
-                throw ValidationException::withMessages([
-                    'email' => ['These credentials do not belong to an admin account.'],
-                ]);
+                
+                return back()->withErrors([
+                    'email' => 'These credentials do not belong to an admin account.',
+                ])->withInput($request->only('email'));
             }
         }
 
@@ -42,10 +53,10 @@ class AdminLoginController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         
-        return redirect()->route('admin.login');
+        return redirect()->route('admin.login')->with('success', 'You have been logged out successfully.');
     }
 }

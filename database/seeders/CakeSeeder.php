@@ -94,18 +94,6 @@ class CakeSeeder extends Seeder
                 'ingredients' => 'Flour, Cocoa, Cherries, Cream, Eggs',
                 'dietary_options' => null,
             ],
-            [
-                'name' => 'Custom Designer Cake',
-                'description' => 'Fully customizable cake - choose your flavor, size, and design',
-                'price' => 8000.00,
-                'category_id' => 4,
-                'flavor' => 'Custom',
-                'size' => 'Custom',
-                'occasion' => 'Any',
-                'is_available' => true,
-                'ingredients' => 'Based on customer preference',
-                'dietary_options' => null,
-            ],
         ];
 
         foreach ($cakes as $cake) {

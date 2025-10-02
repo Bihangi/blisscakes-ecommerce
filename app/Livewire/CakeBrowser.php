@@ -2,95 +2,43 @@
 
 namespace App\Livewire;
 
-use App\Models\Cake;
-use App\Models\Category;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Models\Cake;
+use App\Models\Category;
+use App\Models\Cart;
+use App\Models\CartItem;
+use Illuminate\Support\Facades\Auth;
 
 class CakeBrowser extends Component
 {
     use WithPagination;
 
-    public $search = '';
-    public $categoryFilter = '';
-    public $flavorFilter = '';
-    public $occasionFilter = '';
-    public $priceRange = '';
-    public $dietaryFilter = '';
-    public $sortBy = 'latest';
-    
-    public $selectedCake = null;
+    public $categoryFilter = [];
     public $showCakeDetails = false;
+    public $selectedCake = null;
     public $quantity = 1;
-    public $customizations = [];
 
-    public function render()
+    public function mount()
     {
-        $cakes = Cake::with('category')
-            ->available()
-            ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('description', 'like', '%' . $this->search . '%');
-            })
-            ->when($this->categoryFilter, function ($query) {
-                $query->where('category_id', $this->categoryFilter);
-            })
-            ->when($this->flavorFilter, function ($query) {
-                $query->where('flavor', $this->flavorFilter);
-            })
-            ->when($this->occasionFilter, function ($query) {
-                $query->where('occasion', $this->occasionFilter);
-            })
-            ->when($this->dietaryFilter, function ($query) {
-                $query->whereJsonContains('dietary_options', $this->dietaryFilter);
-            })
-            ->when($this->priceRange, function ($query) {
-                switch ($this->priceRange) {
-                    case 'under-1000':
-                        $query->where('price', '<', 1000);
-                        break;
-                    case '1000-2500':
-                        $query->whereBetween('price', [1000, 2500]);
-                        break;
-                    case '2500-5000':
-                        $query->whereBetween('price', [2500, 5000]);
-                        break;
-                    case 'above-5000':
-                        $query->where('price', '>', 5000);
-                        break;
-                }
-            })
-            ->when($this->sortBy === 'price-low', function ($query) {
-                $query->orderBy('price', 'asc');
-            })
-            ->when($this->sortBy === 'price-high', function ($query) {
-                $query->orderBy('price', 'desc');
-            })
-            ->when($this->sortBy === 'latest', function ($query) {
-                $query->latest();
-            })
-            ->when($this->sortBy === 'name', function ($query) {
-                $query->orderBy('name');
-            })
-            ->paginate(12);
+        if (request()->has('categoryFilter')) {
+            $this->categoryFilter = is_array(request('categoryFilter')) 
+                ? request('categoryFilter') 
+                : [request('categoryFilter')];
+        }
+    }
 
-        $categories = Category::withCount(['cakes' => function ($query) {
-            $query->available();
-        }])->get();
-
-        $flavors = Cake::available()->distinct('flavor')->pluck('flavor')->filter();
-        $occasions = Cake::available()->distinct('occasion')->pluck('occasion')->filter();
-
-        return view('livewire.cakes.browser', compact('cakes', 'categories', 'flavors', 'occasions'))
-        ->layout('layouts.app');
+    public function clearFilters()
+    {
+        $this->categoryFilter = [];
+        $this->resetPage();
     }
 
     public function viewCakeDetails($cakeId)
     {
-        $this->selectedCake = Cake::with('category')->findOrFail($cakeId);
-        $this->quantity = 1;
-        $this->customizations = [];
+        $this->selectedCake = Cake::with('category')->find($cakeId);
         $this->showCakeDetails = true;
+        $this->quantity = 1;
     }
 
     public function hideCakeDetails()
@@ -98,83 +46,76 @@ class CakeBrowser extends Component
         $this->showCakeDetails = false;
         $this->selectedCake = null;
         $this->quantity = 1;
-        $this->customizations = [];
     }
 
-    public function addToCart($cakeId = null, $quantity = null)
+    public function incrementQuantity()
     {
-        if (!auth()->check()) {
+        $this->quantity++;
+    }
+
+    public function decrementQuantity()
+    {
+        if ($this->quantity > 1) {
+            $this->quantity--;
+        }
+    }
+
+    public function addToCart($cakeId)
+    {
+        if (!Auth::check()) {
+            session()->flash('error', 'Please login to add items to cart');
             return redirect()->route('login');
         }
 
-        $cakeId = $cakeId ?? $this->selectedCake->id;
-        $quantity = $quantity ?? $this->quantity;
-
-        $cake = Cake::findOrFail($cakeId);
-        $cart = auth()->user()->cart ?? auth()->user()->cart()->create();
+        $user = Auth::user();
         
-        $existingItem = $cart->cartItems()->where('cake_id', $cakeId)->first();
+        $cart = Cart::firstOrCreate(
+            ['user_id' => $user->id],
+            ['total_price' => 0]
+        );
 
-        $cartData = [
-            'cake_id' => $cakeId,
-            'quantity' => $quantity,
-            'price' => $cake->price,
-            'customization' => $this->customizations
-        ];
+        $cake = Cake::find($cakeId);
 
-        if ($existingItem) {
-            $existingItem->update([
-                'quantity' => $existingItem->quantity + $quantity,
-                'customization' => array_merge($existingItem->customization ?? [], $this->customizations)
-            ]);
+        $cartItem = CartItem::where('cart_id', $cart->id)
+            ->where('cake_id', $cakeId)
+            ->first();
+
+        if ($cartItem) {
+            $cartItem->quantity += $this->quantity;
+            $cartItem->total_price = $cartItem->quantity * $cake->price;
+            $cartItem->save();
         } else {
-            $cart->cartItems()->create($cartData);
+            CartItem::create([
+                'cart_id' => $cart->id,
+                'cake_id' => $cakeId,
+                'quantity' => $this->quantity,
+                'price' => $cake->price,
+                'total_price' => $this->quantity * $cake->price,
+            ]);
         }
 
-        session()->flash('message', 'Cake added to cart successfully!');
-        $this->dispatch('cart-updated');
+        $cart->total_price = $cart->cartItems()->sum('total_price');
+        $cart->save();
+
+        session()->flash('success', 'Cake added to cart successfully!');
         $this->hideCakeDetails();
     }
 
-    public function updatedCategoryFilter()
+    public function render()
     {
-        $this->resetPage();
-    }
+        $query = Cake::with('category')->where('is_available', true);
 
-    public function updatedFlavorFilter()
-    {
-        $this->resetPage();
-    }
+        if (!empty($this->categoryFilter)) {
+            $query->whereIn('category_id', $this->categoryFilter);
+        }
 
-    public function updatedOccasionFilter()
-    {
-        $this->resetPage();
-    }
+        $cakes = $query->paginate(9);
+        $categories = Category::all();
 
-    public function updatedPriceRange()
-    {
-        $this->resetPage();
-    }
+        return view('livewire.cake-browser', [
+            'cakes' => $cakes,
+            'categories' => $categories,
+        ])->layout('layouts.frontend'); 
 
-    public function updatedDietaryFilter()
-    {
-        $this->resetPage();
-    }
-
-    public function updatedSortBy()
-    {
-        $this->resetPage();
-    }
-
-    public function clearFilters()
-    {
-        $this->search = '';
-        $this->categoryFilter = '';
-        $this->flavorFilter = '';
-        $this->occasionFilter = '';
-        $this->priceRange = '';
-        $this->dietaryFilter = '';
-        $this->sortBy = 'latest';
-        $this->resetPage();
     }
 }
