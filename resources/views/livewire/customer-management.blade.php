@@ -20,9 +20,9 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($customers as $customer)
+                @foreach($users as $customer)
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="px-6 py-4 font-medium">{{ $customer->name }}</td>
+                        <td class="px-6 py-4 font-medium">{{ $customer->username }}</td>
                         <td class="px-6 py-4">{{ $customer->email }}</td>
                         <td class="px-6 py-4">{{ $customer->phone ?? 'N/A' }}</td>
                         <td class="px-6 py-4">{{ $customer->created_at->format('M d, Y') }}</td>
@@ -44,7 +44,7 @@
     </div>
 
     <div class="mt-4">
-        {{ $customers->links() }}
+        {{ $users->links() }}
     </div>
 
     {{-- Customer Details Modal --}}
@@ -53,7 +53,7 @@
             <div class="bg-white rounded-lg p-8 max-w-2xl w-full max-h-screen overflow-y-auto">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold">Customer Details</h2>
-                    <button wire:click="$set('selectedCustomer', null)" class="text-gray-500 hover:text-gray-700">
+                    <button wire:click="closedCustomerModel" class="text-gray-500 hover:text-gray-700">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -63,7 +63,7 @@
                 <div class="space-y-4">
                     <div>
                         <h3 class="font-bold">Personal Information</h3>
-                        <p>Name: {{ $selectedCustomer->name }}</p>
+                        <p>Name: {{ $selectedCustomer->username }}</p>
                         <p>Email: {{ $selectedCustomer->email }}</p>
                         <p>Phone: {{ $selectedCustomer->phone ?? 'N/A' }}</p>
                         <p>Address: {{ $selectedCustomer->address ?? 'N/A' }}</p>

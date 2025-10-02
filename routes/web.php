@@ -11,7 +11,9 @@ use App\Livewire\AdminDashboard;
 use App\Livewire\CakeReviews;
 use App\Livewire\CategoryManagement;
 use App\Livewire\NotificationSystem;
+use App\Http\Controllers\Auth\TwoFactorAuthController;
 use App\Livewire\UserManagement;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\AdminLoginController;
 
 /* PUBLIC ROUTES */
@@ -71,3 +73,26 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',
         Route::get('/customers', UserManagement::class)->name('customers');
         Route::get('/notifications', NotificationSystem::class)->name('notifications');
     });
+
+// Forgot Password Routes
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotPasswordForm'])->name('password.request');
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendOtp'])->name('password.send-otp');
+Route::get('/verify-otp', [ForgotPasswordController::class, 'showVerifyOtpForm'])->name('password.verify-otp');
+Route::post('/verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name('password.verify-otp.submit');
+Route::get('/reset-password', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset-form');
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('password.update');
+Route::post('/resend-otp', [ForgotPasswordController::class, 'resendOtp'])->name('password.resend-otp');
+
+// 2FA Routes
+Route::get('/two-factor-challenge', [TwoFactorAuthController::class, 'show'])->name('two-factor.login');
+Route::post('/two-factor-challenge', [TwoFactorAuthController::class, 'verify'])->name('two-factor.verify');
+Route::post('/two-factor/resend', [TwoFactorAuthController::class, 'resend'])->name('two-factor.resend');
+
+// 2FA Settings (Protected)
+Route::middleware('auth')->group(function () {
+    Route::get('/user/two-factor-settings', function () {
+        return view('profile.two-factor-settings');
+    })->name('two-factor.settings');
+    Route::post('/user/two-factor/enable', [TwoFactorAuthController::class, 'enable'])->name('two-factor.enable');
+    Route::post('/user/two-factor/disable', [TwoFactorAuthController::class, 'disable'])->name('two-factor.disable');
+});

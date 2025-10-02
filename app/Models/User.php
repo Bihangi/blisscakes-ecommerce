@@ -16,7 +16,6 @@ class User extends Authenticatable
 
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
-    use HasProfilePhoto;
     use Notifiable;
     use TwoFactorAuthenticatable;
 
@@ -34,6 +33,8 @@ class User extends Authenticatable
         'user_type',
         'phone',
         'address',
+        'two_factor_enabled',
+        'two_factor_expires_at',
     ];
 
     /**
@@ -44,7 +45,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        'two_factor_recovery_codes',
+        'two_factor_code',
         'two_factor_secret',
     ];
 
@@ -67,6 +68,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'two_factor_expires_at' => 'datetime',
+            'two_factor_enabled' => 'boolean',
         ];
     }
 
@@ -119,4 +122,25 @@ class User extends Authenticatable
     {
         return 'Rs. ' . number_format($this->total_spent, 2);
     }
+
+    public function generateTwoFactorCode()
+    {
+        $this->timestamps = false;
+        $this->two_factor_code = rand(100000, 999999);
+        $this->two_factor_expires_at = now()->addMinutes(10);
+        $this->save();
+        $this->timestamps = true;
+
+        return $this->two_factor_code;
+    }
+
+    public function resetTwoFactorCode()
+    {
+        $this->timestamps = false;
+        $this->two_factor_code = null;
+        $this->two_factor_expires_at = null;
+        $this->save();
+        $this->timestamps = true;
+    }
+
 }

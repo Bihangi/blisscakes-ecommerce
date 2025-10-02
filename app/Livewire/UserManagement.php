@@ -15,14 +15,15 @@ class UserManagement extends Component
     public $userType = '';
     public $showCreateForm = false;
     public $editingUser = null;
+    public $selectedCustomer = null;
 
-    public $name = '';
+    public $username = '';
     public $email = '';
     public $password = '';
     public $password_confirmation = '';
     public $phone = '';
     public $address = '';
-    public $role = 'customer';
+    public $user_type = 'customer';
 
     protected $queryString = ['search', 'userType'];
 
@@ -31,12 +32,12 @@ class UserManagement extends Component
         $userId = $this->editingUser ? $this->editingUser->id : null;
         
         return [
-            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $userId,
             'password' => $this->editingUser ? 'nullable|min:8|confirmed' : 'required|min:8|confirmed',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
-            'role' => 'required|in:admin,customer',
+            'user_type' => 'required|in:admin,customer',
         ];
     }
 
@@ -45,9 +46,19 @@ class UserManagement extends Component
         $this->resetPage();
     }
 
+    public function closedCustomerModel()
+    {
+        $this->selectedCustomer = null;
+    }
+
     public function updatingUserType()
     {
         $this->resetPage();
+    }
+
+    public function viewCustomer($userId)
+    {
+        $this->selectedCustomer = User::with('orders')->findOrFail($userId);
     }
 
     public function showCreateForm()
@@ -67,12 +78,12 @@ class UserManagement extends Component
         $this->validate();
 
         User::create([
-            'name' => $this->name,
+            'username' => $this->username,
             'email' => $this->email,
             'password' => Hash::make($this->password),
             'phone' => $this->phone,
             'address' => $this->address,
-            'role' => $this->role,
+            'use-type' => $this->user_type,
         ]);
 
         session()->flash('message', 'User created successfully!');
@@ -82,11 +93,11 @@ class UserManagement extends Component
     public function editUser($userId)
     {
         $this->editingUser = User::findOrFail($userId);
-        $this->name = $this->editingUser->name;
+        $this->username = $this->editingUser->username;
         $this->email = $this->editingUser->email;
         $this->phone = $this->editingUser->phone ?? '';
         $this->address = $this->editingUser->address ?? '';
-        $this->role = $this->editingUser->role;
+        $this->user_type = $this->editingUser->user_type;
         $this->password = '';
         $this->password_confirmation = '';
     }
@@ -96,11 +107,11 @@ class UserManagement extends Component
         $this->validate();
 
         $data = [
-            'name' => $this->name,
+            'username' => $this->username,
             'email' => $this->email,
             'phone' => $this->phone,
             'address' => $this->address,
-            'role' => $this->role,
+            'user_type' => $this->user_type,
         ];
 
         if ($this->password) {
@@ -134,30 +145,31 @@ class UserManagement extends Component
 
     private function resetForm()
     {
-        $this->name = '';
+        $this->username = '';
         $this->email = '';
         $this->password = '';
         $this->password_confirmation = '';
         $this->phone = '';
         $this->address = '';
-        $this->role = 'customer';
+        $this->user_type = 'customer';
     }
 
     public function render()
     {
         $users = User::query()
+            ->where('user_type', 'customer')
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%')
+                $query->where('username', 'like', '%' . $this->search . '%')
                     ->orWhere('email', 'like', '%' . $this->search . '%');
             })
             ->when($this->userType, function ($query) {
-                $query->where('role', $this->userType);
+                $query->where('user_type', $this->userType);
             })
             ->latest()
             ->paginate(10);
 
-        return view('livewire.user-management', [
+        return view('livewire.customer-management', [
             'users' => $users
-        ])->layout('layouts.app');
+        ]);
     }
 }

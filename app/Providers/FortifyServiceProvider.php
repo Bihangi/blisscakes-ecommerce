@@ -12,12 +12,16 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Fortify;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Laravel\Fortify\Contracts\LoginResponse;
 
 class FortifyServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // Register custom login response
+        $this->app->singleton(LoginResponse::class, \App\Http\Responses\LoginResponse::class);
     }
 
     public function boot(): void
@@ -29,40 +33,47 @@ class FortifyServiceProvider extends ServiceProvider
 
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
-
             return Limit::perMinute(5)->by($throttleKey);
         });
 
-        RateLimiter::for('two-factor', function (Request $request) {
-            return Limit::perMinute(5)->by($request->session()->get('login.id'));
-        });
-
-        // Custom login view
         Fortify::loginView(function () {
             return view('auth.login');
         });
 
-        // Custom register view
         Fortify::registerView(function () {
             return view('auth.register');
         });
 
-        // Redirect after authentication based on user type
+        // Custom authentication with 2FA
         Fortify::authenticateUsing(function (Request $request) {
+            $credentials = $request->only('email', 'password');
             $user = \App\Models\User::where('email', $request->email)->first();
 
-            if ($user && 
-                \Hash::check($request->password, $user->password)) {
-                
-                // Prevent admin from logging in via customer login
-                if ($user->user_type === 'admin' && !$request->is('admin/*')) {
-                    return null; // Failed authentication
-                }
-                
-                return $user;
+            if (!$user || !\Hash::check($request->password, $user->password)) {
+                return null;
             }
 
-            return null;
+            // Prevent admin from customer login
+            if (!$request->is('admin/*') && $user->user_type === 'admin') {
+                return null;
+            }
+
+            // Handle 2FA
+            if ($user->two_factor_enabled) {
+                $code = $user->generateTwoFactorCode();
+
+                Mail::send('emails.two-factor-code', ['code' => $code, 'user' => $user], function ($message) use ($user) {
+                    $message->to($user->email);
+                    $message->subject('Your Login Verification Code - BlissCakes');
+                });
+
+                session(['2fa_user_id' => $user->id, '2fa_remember' => $request->filled('remember')]);
+                
+                // Throw an exception to stop login and redirect
+                throw new \App\Exceptions\TwoFactorAuthenticationException('2FA required');
+            }
+
+            return $user;
         });
     }
 }

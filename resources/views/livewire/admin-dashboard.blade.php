@@ -31,7 +31,7 @@
         @endif
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <!-- Total Orders -->
             <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-blue-100 hover:shadow-xl hover:scale-105 transition-all duration-300">
                 <div class="flex items-center justify-between mb-4">
@@ -66,18 +66,6 @@
                 </div>
                 <p class="text-sm font-semibold text-slate-600 mb-1">Total Customers</p>
                 <p class="text-4xl font-bold text-slate-900">{{ $stats['total_customers'] }}</p>
-            </div>
-
-            <!-- Total Revenue -->
-            <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-rose-100 hover:shadow-xl hover:scale-105 transition-all duration-300">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-16 h-16 bg-gradient-to-br from-rose-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
-                        <i class="fas fa-coins text-2xl text-white"></i>
-                    </div>
-                    <span class="text-xs font-bold text-rose-600 bg-rose-50 px-3 py-1 rounded-full">Total</span>
-                </div>
-                <p class="text-sm font-semibold text-slate-600 mb-1">Total Revenue</p>
-                <p class="text-4xl font-bold text-slate-900">Rs. {{ number_format($stats['total_revenue'], 0) }}</p>
             </div>
         </div>
 

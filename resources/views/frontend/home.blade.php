@@ -15,22 +15,22 @@
   <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent flex items-center">
     <div class="w-full px-6 md:px-12 lg:px-24">
       <div class="max-w-xl">
-        <h1 class="text-3xl sm:text-4xl md:text-6xl font-bold text-white leading-tight mb-4">
+        <h1 class="text-2xl sm:text-3xl md:text-6xl font-bold text-white leading-tight mb-3 sm:mb-4">
           Crafted with Love,<br>Baked to Perfection
         </h1>
-        <p class="text-lg md:text-xl text-white/90 mb-8">
+        <p class="text-base sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8">
           Discover our collection of handcrafted cakes for every celebration
         </p>
-        <div class="flex flex-wrap gap-4">
+        <div class="flex flex-col sm:flex-wrap sm:flex-row gap-3 sm:gap-4">
           <a 
             href="{{ route('cakes.browse') }}" 
-            class="bg-white text-gray-900 px-8 py-3 text-lg font-semibold rounded-full hover:bg-gray-100 transition duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            class="text-center bg-white text-gray-900 px-6 sm:px-8 py-2.5 sm:py-3 text-base sm:text-lg font-semibold rounded-full hover:bg-gray-100 transition duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
           >
             Shop Now
           </a>
           <a 
             href="{{ route('about') }}" 
-            class="bg-transparent border-2 border-white text-white px-8 py-3 text-lg font-semibold rounded-full hover:bg-white hover:text-gray-900 transition duration-300"
+            class="text-center bg-transparent border-2 border-white text-white px-6 sm:px-8 py-2.5 sm:py-3 text-base sm:text-lg font-semibold rounded-full hover:bg-white hover:text-gray-900 transition duration-300"
           >
             Learn More
           </a>

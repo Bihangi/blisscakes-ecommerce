@@ -76,8 +76,7 @@ class CakeManagement extends Component
 
         $categories = Category::all();
 
-        return view('livewire.cake-management', compact('cakes', 'categories'))
-        ->layout('layouts.app');
+        return view('livewire.cake-management', compact('cakes', 'categories'));
     }
 
     public function showCreateForm()

@@ -14,13 +14,11 @@ class OrderItem extends Model
         'cake_id',
         'quantity',
         'price',
-        'customization', // JSON field for custom message, etc.
     ];
 
     protected $casts = [
         'quantity' => 'integer',
         'price' => 'decimal:2',
-        'customization' => 'array',
     ];
 
     // Relationships
@@ -44,14 +42,4 @@ class OrderItem extends Model
         return 'Rs. ' . number_format($this->subtotal, 2);
     }
 
-    public function getCustomizationTextAttribute()
-    {
-        if (!$this->customization) return 'No customizations';
-        
-        $text = [];
-        foreach ($this->customization as $key => $value) {
-            $text[] = ucfirst($key) . ': ' . $value;
-        }
-        return implode(', ', $text);
-    }
 }

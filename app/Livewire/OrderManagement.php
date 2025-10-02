@@ -24,9 +24,11 @@ class OrderManagement extends Component
         'delivered',
         'cancelled',
     ];
-    
+
     public function render()
     {
+        $statuses = $this->statuses ?? [];
+        
         $orders = Order::with(['user', 'orderItems.cake'])
             ->when($this->statusFilter, function ($query) {
                 $query->where('status', $this->statusFilter);
@@ -53,8 +55,7 @@ class OrderManagement extends Component
             'pending_payments' => Order::where('payment_status', 'pending')->count(),
         ];
 
-        return view('livewire.order-management', compact('orders', 'orderStats'))
-        ->layout('layouts.app');
+        return view('livewire.order-management', compact('orders', 'orderStats'));
     }
 
     public function updateOrderStatus($orderId, $status)
@@ -106,4 +107,10 @@ class OrderManagement extends Component
             'failed' => 'Failed'
         ];
     }
+
+    public function closeOrderModal()
+    {
+        $this->selectedOrder = null;
+    }
+
 }
