@@ -114,6 +114,6 @@ class CakeReviews extends Component
 
     public function render()
     {
-        return view('livewire.cake-reviews');
+        return view('livewire.cake-reviews')->layout('layouts.frontend');
     }
 }
