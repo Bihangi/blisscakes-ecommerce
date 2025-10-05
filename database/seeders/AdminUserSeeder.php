@@ -14,12 +14,16 @@ class AdminUserSeeder extends Seeder
     {
         // Create Admin User
         User::create([
+            'first_name' => 'Admin',     
+            'last_name' => 'User',
             'username' => 'Admin',
             'email' => 'admin@blisscakes.com',
             'password' => Hash::make('password'),
             'user_type' => 'admin',
             'phone' => '0771234567',
             'email_verified_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         // Create Test Customer
@@ -33,6 +37,8 @@ class AdminUserSeeder extends Seeder
             'phone' => '0777654321',
             'address' => '123, Colombo Road, Negombo',
             'email_verified_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 }
