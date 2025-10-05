@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             // Add new columns
             if (!Schema::hasColumn('users', 'first_name')) {
-                $table->string('first_name')->after('id');
+                $table->string('first_name')->after('id')->nullable();
             }
             if (!Schema::hasColumn('users', 'last_name')) {
-                $table->string('last_name')->after('first_name');
+                $table->string('last_name')->after('first_name')->nullable();
             }
             if (!Schema::hasColumn('users', 'username')) {
                 $table->string('username')->after('last_name');
