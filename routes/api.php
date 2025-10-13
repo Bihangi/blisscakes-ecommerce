@@ -23,8 +23,9 @@ Route::get('/cakes/{id}', [CakeController::class, 'show']);
 // Public Reviews
 Route::get('/cakes/{cakeId}/reviews', [ReviewController::class, 'index']);
 
-/* PROTECTED API ROUTES (Customer) */
 
+
+/* PROTECTED API ROUTES (Customer) */
 Route::middleware('auth:sanctum')->group(function () {
     
     // Get Current User
@@ -54,8 +55,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 });
 
-/* PROTECTED API ROUTES (Admin Only) */
 
+/* PROTECTED API ROUTES (Admin) */
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     
     // Admin Logout
