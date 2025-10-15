@@ -16,13 +16,18 @@ Route::post('/admin/login', [AdminAuthController::class, 'login']);
 Route::post('/customer/register', [CustomerAuthController::class, 'register']);
 Route::post('/customer/login', [CustomerAuthController::class, 'login']);
 
-// Public Cake Browsing
-Route::get('/cakes', [CakeController::class, 'index']);
-Route::get('/cakes/{id}', [CakeController::class, 'show']);
+// Welcome and About 
+Route::get('/', function () {
+    return response()->json(['message' => 'Welcome to BlissCakes API']);
+});
 
-// Public Reviews
-Route::get('/cakes/{cakeId}/reviews', [ReviewController::class, 'index']);
-
+Route::get('/about', function () {
+    return response()->json([
+        'app' => 'BlissCakes',
+        'description' => 'Your favorite place for delicious cakes!',
+        'version' => '1.0'
+    ]);
+});
 
 
 /* PROTECTED API ROUTES (Customer) */
@@ -44,6 +49,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/items/{id}', [CartController::class, 'removeItem']);
         Route::delete('/', [CartController::class, 'clear']);
     });
+
+    // Cake browsing 
+    Route::get('/cakes', [CakeController::class, 'index']);
+    Route::get('/cakes/{id}', [CakeController::class, 'show']);
+
+    // Reviews 
+    Route::get('/cakes/{cakeId}/reviews', [ReviewController::class, 'index']);
 
     // Order Management (Customer)
     Route::get('/orders', [OrderController::class, 'index']);
